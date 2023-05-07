@@ -1,83 +1,128 @@
 import express from "express";
-// import fetch from "node-fetch";
-// import config from "../client/src/config.js";
+import config from './config.js';
+import bodyParser from "body-parser";
+import fetch from 'node-fetch';
 
 const PORT = process.env.PORT || 3001;
 
 const app = express();
 
-// async function getAccessToken() {
-//     const settings = {
-//         method: 'POST',
+// create application/json parser
+const jsonParser = bodyParser.json()
+
+var access_token;
+
+app.post('/callback', jsonParser, async (req, res) => {
+    const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: req.body.code,
+        redirect_uri: config.REDIRECT_URI,
+        client_id: config.CLIENT_ID,
+        code_verifier: req.body.code_verifier
+    });
+
+    fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body
+    })
+        .then(response => { return response.json() })
+        .then(data => {
+            if (data.access_token) {
+                access_token = data.access_token;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            res.status(res.statusCode).send('Failed to create access token');
+        });
+    res.status(res.statusCode).end();
+
+});
+
+const getTop = async (type, limit, results) => {
+    const body = new URLSearchParams({
+        time_range: 'short_term',
+        limit: limit,
+    });
+
+    // console.log('TOKEN: ' + access_token)
+    await fetch(`https://api.spotify.com/v1/me/top/${type}?${body}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            data.items.forEach(item => results.push(item.id))
+            return data;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// function getRecommendations(artists_list, tracks_list) {
+//     const body = new URLSearchParams({
+//         limit: 2,
+//         market: 'US',
+//         seed_artists: artists_list.join(','),
+//         seed_tracks: tracks_list.join(','),
+//     });
+
+//     fetch(`https://api.spotify.com/v1/recommendations?${body}`, {
+//         method: 'GET',
 //         headers: {
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/x-www-form-urlencoded',
+//             'Authorization': 'Bearer ' + access_token
 //         },
-//         body: {
-//             'grant_type': 'client_credentials',
-//             'client_id': config.CLIENT_ID,
-//             'client_secret': config.CLIENT_SECRET,
-//         }
-        
-//     };
-//     try {
-//         const result = await fetch("https://accounts.spotify.com/api/token", settings)
-//         const data = await result.json();
-//         return data
-//     } catch (e) {
-//         console.log(e);
-//     }
+//     })
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log(data)
+//             return data
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//         });
 // }
 
-// app.get("/callback", async (req, res) => {
-//     const settings = {
-//         method: 'POST',
-//         headers: {
-//             'Authorization': 'Basic ' + (new Buffer.from(config.CLIENT_ID + ':' + config.CLIENT_SECRET).toString('base64')),
-//             'Accept': 'application/json',
-//             // 'Content-Type': 'application/x-www-form-urlencoded',
-//         },
-//         body: {
-//             'grant_type': 'client_credentials',
-//             // 'client_id': config.CLIENT_ID,
-//             // 'client_secret': config.CLIENT_SECRET,
-//         }
-        
-//     };
-//     try {
-//         const result = await fetch('https://accounts.spotify.com/authorize', settings)
-//         const data = await result.json();
-//         // return data
-//         res.json(data);
-//     } catch (e) {
-//         console.log(e);
-//     }
-//   });
+app.get('/recommendations', (req, res) => {
+    const top_artists = [];
+    const top_tracks = [];
 
-// app.get('/callback', async (req, res) => {
-//     const body = {
-//         grant_type: 'authorization_code',
-//         code: req.query.code,
-//         redirect_uri: config.REDIRECT_URI,
-//         client_id: config.CLIENT_ID,
-//         client_secret: config.CLIENT_SECRET,
-//       }
-    
-//       await fetch('https://accounts.spotify.com/api/token', {
-//         method: 'POST',
-//         headers: {
-//           "Content-Type": "application/x-www-form-urlencoded",
-//           "Accept": "application/json"
-//         },
-//         body: encodeFormData(body)
-//       })
-//       .then(response => response.json())
-//       .then(data => {
-//         const query = querystring.stringify(data);
-//         res.redirect(`${config.REDIRECT_URI}?${query}`);
-//       });
-// });
+    const promiseCollection = [];
+    const fetchArtists = getTop("artists", 3, top_artists);
+    const fetchTracks = getTop("tracks", 2, top_tracks);
+
+    promiseCollection.push(fetchArtists, fetchTracks);
+    Promise.all(promiseCollection).then(() => {
+        const body = new URLSearchParams({
+            limit: 2,
+            market: 'US',
+            seed_artists: top_artists.join(','),
+            seed_tracks: top_tracks.join(','),
+        });
+
+        fetch(`https://api.spotify.com/v1/recommendations?${body}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                res.json(data)
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    })
+});
 
 app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
+    console.log(`Server listening on ${PORT}`);
 });
