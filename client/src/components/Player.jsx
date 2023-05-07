@@ -3,22 +3,6 @@ import axios from 'axios';
 
 export default function Player() {
     const [recommendations, setRecommendations] = useState([]);
-    // const [code, setCode] = useState('');
-    // const [codeVerifier, setCodeVerifier] = useState('');
-
-    // useEffect(() => {
-    //     const urlParams = new URLSearchParams(window.location.search);
-    //     setCode(urlParams.get('code'));
-    //     setCodeVerifier(localStorage.getItem('code_verifier'));
-    // }, [])
-
-    // const getCode = () => {
-    //     const urlParams = new URLSearchParams(window.location.search);
-    //     return urlParams.get('code');
-    // }
-
-    // let code_verifier = localStorage.getItem('code_verifier');
-    // let code = getCode();
 
     useEffect(() => {
         const abortController = new AbortController();
