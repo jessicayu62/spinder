@@ -32,7 +32,7 @@ export default function Home() {
 
         generateCodeChallenge(codeVerifier).then(codeChallenge => {
             let state = generateRandomString(16);
-            let scope = 'user-read-private user-top-read'; // to change
+            let scope = 'user-read-private user-top-read user-library-modify'; // to change
           
             localStorage.setItem('code_verifier', codeVerifier);
           

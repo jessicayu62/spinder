@@ -39,7 +39,6 @@ app.post('/callback', jsonParser, async (req, res) => {
             res.status(res.statusCode).send('Failed to create access token');
         });
     res.status(res.statusCode).end();
-
 });
 
 const getTop = async (type, limit, results) => {
@@ -48,7 +47,6 @@ const getTop = async (type, limit, results) => {
         limit: limit,
     });
 
-    // console.log('TOKEN: ' + access_token)
     await fetch(`https://api.spotify.com/v1/me/top/${type}?${body}`, {
         method: 'GET',
         headers: {
@@ -64,30 +62,6 @@ const getTop = async (type, limit, results) => {
             console.error('Error:', error);
         });
 }
-
-// function getRecommendations(artists_list, tracks_list) {
-//     const body = new URLSearchParams({
-//         limit: 2,
-//         market: 'US',
-//         seed_artists: artists_list.join(','),
-//         seed_tracks: tracks_list.join(','),
-//     });
-
-//     fetch(`https://api.spotify.com/v1/recommendations?${body}`, {
-//         method: 'GET',
-//         headers: {
-//             'Authorization': 'Bearer ' + access_token
-//         },
-//     })
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log(data)
-//             return data
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//         });
-// }
 
 app.get('/recommendations', (req, res) => {
     const top_artists = [];
@@ -114,13 +88,35 @@ app.get('/recommendations', (req, res) => {
         })
             .then(response => response.json())
             .then(data => {
-                console.log(data)
                 res.json(data)
             })
             .catch(error => {
                 console.error('Error:', error);
             });
     })
+});
+
+app.put('/like', jsonParser, async (req, res) => {
+    const body = new URLSearchParams({
+        ids: req.body.id,
+    })
+
+    await fetch(`https://api.spotify.com/v1/me/tracks?${body}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': 'Bearer ' + access_token,
+            'Content-Type': 'application/json'
+        },
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Something went wrong');
+            }
+        })
+        .catch((error) => {
+            console.log(error)
+        });
+    res.status(res.statusCode).end();
 });
 
 app.listen(PORT, () => {
