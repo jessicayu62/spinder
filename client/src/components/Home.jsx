@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import config from '.././config.js'
+import config from '../config.js'
 
 function generateRandomString(length) {
     let text = '';
