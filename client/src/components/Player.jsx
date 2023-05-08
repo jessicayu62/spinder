@@ -1,10 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
 export default function Player() {
     const [recommendations, setRecommendations] = useState([]);
     const [currentTrackIndex, setCurrentTrackIndex] = useState();
+    const [openModal, setOpenModal] = useState(false);
+    const [audio, setAudio] = useState('');
+    const audioRef = useRef()
+
+    const updateSong = (source) => {
+        console.log("HERE")
+        setAudio(source);
+        if (audioRef.current) {
+            // console.log("HERE")
+            audioRef.current.pause();
+            audioRef.current.load();
+            audioRef.current.play();
+        }
+    }
 
     const fetchRecommendations = async () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -19,7 +48,27 @@ export default function Player() {
 
             const recommendations = await axios.get('/recommendations');
             setRecommendations(recommendations.data.tracks)
-            setCurrentTrackIndex(0)
+            setOpenModal(true)
+
+            if (recommendations.data.tracks[0].preview_url) {
+                setCurrentTrackIndex(0)
+                updateSong(recommendations.data.tracks[0].preview_url)
+            } else {
+                let count = 1;
+                let reachedEnd = false
+                while (!recommendations[currentTrackIndex + count].preview_url) {
+                    count++;
+                    if (currentTrackIndex + count >= recommendations.length) {
+                        reachedEnd = true;
+                        setCurrentTrackIndex(currentTrackIndex + count)
+                        break;
+                    }
+                }
+                if (!reachedEnd) {
+                    updateSong(recommendations[currentTrackIndex + count].preview_url)
+                }
+                setCurrentTrackIndex(currentTrackIndex + count)
+            }
         } catch (error) {
             if (error.name !== "AbortError") {
                 console.log(error)
@@ -33,8 +82,29 @@ export default function Player() {
         return () => abortController.abort();
     }, []);
 
+    const prepNextTrack = () => {
+        if (currentTrackIndex === recommendations.length - 1) {
+            setCurrentTrackIndex(currentTrackIndex + 1)
+        } else {
+            let count = 1;
+            let reachedEnd = false
+            while (!recommendations[currentTrackIndex + count].preview_url) {
+                count++;
+                if (currentTrackIndex + count >= recommendations.length) {
+                    reachedEnd = true;
+                    setCurrentTrackIndex(currentTrackIndex + count)
+                    break;
+                }
+            }
+            if (!reachedEnd) {
+                updateSong(recommendations[currentTrackIndex + count].preview_url)
+            }
+            setCurrentTrackIndex(currentTrackIndex + count)
+        }
+    }
+
     const handleReject = () => {
-        setCurrentTrackIndex(currentTrackIndex + 1)
+        prepNextTrack();
     }
 
     const handleLike = async () => {
@@ -43,7 +113,8 @@ export default function Player() {
                 id: recommendations[currentTrackIndex].id,
             })
             console.log("Added to liked songs!")
-            setCurrentTrackIndex(currentTrackIndex + 1)
+
+            prepNextTrack();
         } catch (error) {
             if (error.name !== "AbortError") {
                 console.log(error)
@@ -55,6 +126,37 @@ export default function Player() {
         recommendations ?
             (currentTrackIndex < recommendations.length ?
                 <div>
+                    <Modal
+                        open={openModal}
+                        onClose={() => {
+                            setOpenModal(false)
+                            updateSong(audio)
+                        }}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box sx={style}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Spinder
+                            </Typography>
+                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                Swipe left to skip song or right to add to your Spotify likes
+                            </Typography>
+                            <Button variant="contained" onClick={() => {
+                                setOpenModal(false)
+                                updateSong(audio)
+                            }}>
+                                Let's start!
+                            </Button>
+                        </Box>
+                    </Modal>
+                    <img
+                        src={recommendations[currentTrackIndex].album.images[0].url}
+                        alt={recommendations[currentTrackIndex].album.name + " album cover"}
+                    />
+                    <audio controls="controls" ref={audioRef}>
+                        <source src={audio} type="audio/mpeg" />
+                    </audio>
                     <p>{recommendations[currentTrackIndex].name} by {recommendations[currentTrackIndex].artists[0].name}</p>
 
                     <Button variant="contained" onClick={handleReject}>
@@ -79,6 +181,5 @@ export default function Player() {
                     <p>Loading...</p>
                 </div>
             )
-
     )
 }

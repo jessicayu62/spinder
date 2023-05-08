@@ -74,7 +74,7 @@ app.get('/recommendations', (req, res) => {
     promiseCollection.push(fetchArtists, fetchTracks);
     Promise.all(promiseCollection).then(() => {
         const body = new URLSearchParams({
-            limit: 2,
+            limit: 10,
             market: 'US',
             seed_artists: top_artists.join(','),
             seed_tracks: top_tracks.join(','),
