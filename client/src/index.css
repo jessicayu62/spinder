@@ -15,3 +15,9 @@ code {
 .custom-btn { 
   background-color: #1db954;
 } 
+
+.custom-card {
+  width: 35rem;
+  padding: 40px;
+  background-color: #1db954;
+}

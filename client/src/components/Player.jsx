@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-
+import PlayerCard from "./Card";
 // const style = {
 //     position: 'absolute',
 //     top: '50%',
@@ -160,8 +160,12 @@ export default function Player() {
                                         setIsFirstTime(false)
                                     }}>Start listening!</Button>
                             </Modal.Footer>
-                        </Modal> : null}
-                    <img
+                        </Modal> :
+                        null
+                    }
+
+                    <PlayerCard track={recommendations[currentTrackIndex]} audio={audio} audioRef={audioRef} trackURI={trackURI} reject={handleReject} like={handleLike}/>
+                    {/* <img
                         src={recommendations[currentTrackIndex].album.images[0].url}
                         alt={recommendations[currentTrackIndex].album.name + " album cover"}
                     />
@@ -182,7 +186,7 @@ export default function Player() {
                         Add to Library
                     </Button>
 
-                    {trackURI ? <img src={trackURI} alt='track spotify code' /> : null}
+                    {trackURI ? <img src={trackURI} alt='track spotify code' /> : null} */}
 
                 </div>
 
