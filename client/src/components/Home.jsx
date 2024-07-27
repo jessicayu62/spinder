@@ -1,5 +1,7 @@
 import Button from '@mui/material/Button';
 import config from '../config.js'
+import logo from './img/logo.png';
+import Image from 'react-bootstrap/Image';
 
 function generateRandomString(length) {
     let text = '';
@@ -51,8 +53,14 @@ export default function Home() {
     }
 
     return (
-        <Button onClick={handleClick} variant="outlined">
-            Login
-        </Button>
+        <div className='custom-outer-div'>
+            <Button variant="link">
+                <div className='custom-inner-div'>
+                    <h1 className='mb-3'>Spinder</h1>
+                    <Image style={{animation: `spin 8s linear infinite`}} className="custom-logo-home" src={logo} alt="logo" onClick={handleClick} />
+                    <i className='d-block mt-4 custom-subtitle'>Click to get started</i>
+                </div>
+            </Button>
+        </div >
     )
 }

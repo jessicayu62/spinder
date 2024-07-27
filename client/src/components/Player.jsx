@@ -3,34 +3,57 @@ import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import PlayerCard from "./Card";
-// const style = {
-//     position: 'absolute',
-//     top: '50%',
-//     left: '50%',
-//     transform: 'translate(-50%, -50%)',
-//     width: 400,
-//     bgcolor: 'background.paper',
-//     border: '2px solid #000',
-//     boxShadow: 24,
-//     p: 4,
-// };
-const SCANNABLESURL = 'https://scannables.scdn.co/uri/plain/png/00FFFFFF/black/640/';
+import logo from './img/logo.png';
+import Image from 'react-bootstrap/Image';
+import { useNavigate } from "react-router-dom";
+import heart from './img/heart-64.png';
+
+const SCANNABLESURL = 'https://scannables.scdn.co/uri/plain/png/1DB954/black/640/';
 
 export default function Player() {
     const [recommendations, setRecommendations] = useState(undefined);
     const [currentTrackIndex, setCurrentTrackIndex] = useState();
-    const [openModal, setOpenModal] = useState(false);
+    const [openModal, setOpenModal] = useState(true);
     const [audio, setAudio] = useState('');
     const [trackURI, setTrackURI] = useState(null);
     const audioRef = useRef()
     const [firstTime, setIsFirstTime] = useState(true);
+    const navigate = useNavigate();
 
     const updateSong = (source) => {
         setAudio(source);
         if (audioRef.current) {
-            audioRef.current.pause();
             audioRef.current.load();
+        } 
+    }
+
+    const playSong = () => {
+        if (audio != '' && audioRef.current) {
             audioRef.current.play();
+        } else {
+            prepNextTrack();
+        }
+    }
+    
+    const pauseSong = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+        } 
+    }
+
+    const checkPermissions = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        let error = urlParams.get('error');
+        if (error) {
+            if (error == "access_denied") {
+                navigate("/");
+            }
+            else {
+                navigate("/");
+                console.log(error);
+            }
+        } else {
+            fetchRecommendations();
         }
     }
 
@@ -47,31 +70,12 @@ export default function Player() {
 
             const recommendations = await axios.get('/recommendations');
             setRecommendations(recommendations.data.tracks)
-            setOpenModal(true)
+            // setOpenModal(true)
 
             setCurrentTrackIndex(0)
             updateSong(recommendations.data.tracks[0].preview_url)
             setTrackURI(SCANNABLESURL + recommendations.data.tracks[0].uri)
-            // if (recommendations.data.tracks[0].preview_url) {
-            //     setCurrentTrackIndex(0)
-            //     updateSong(recommendations.data.tracks[0].preview_url)
-            //     setTrackURI(SCANNABLESURL + recommendations[currentTrackIndex].uri)
-            // } else {
-            //     let count = 1;
-            //     let reachedEnd = false
-            //     while (!recommendations[currentTrackIndex + count].preview_url) {
-            //         count++;
-            //         if (currentTrackIndex + count >= recommendations.length) {
-            //             reachedEnd = true;
-            //             setCurrentTrackIndex(currentTrackIndex + count)
-            //             break;
-            //         }
-            //     }
-            //     if (!reachedEnd) {
-            //         updateSong(recommendations[currentTrackIndex + count].preview_url)
-            //     }
-            //     setCurrentTrackIndex(currentTrackIndex + count)
-            // }
+            playSong()
         } catch (error) {
             if (error.name !== "AbortError") {
                 console.log(error)
@@ -81,8 +85,7 @@ export default function Player() {
 
     useEffect(() => {
         const abortController = new AbortController();
-        fetchRecommendations();
-        console.log('i fire once');
+        checkPermissions();
         return () => abortController.abort();
     }, []);
 
@@ -106,14 +109,17 @@ export default function Player() {
             }
             setCurrentTrackIndex(currentTrackIndex + count)
             setTrackURI(SCANNABLESURL + recommendations[currentTrackIndex].uri)
+            playSong()
         }
     }
 
     const handleReject = () => {
+        pauseSong();
         prepNextTrack();
     }
 
     const handleLike = async () => {
+        pauseSong();
         try {
             await axios.put('/like', {
                 id: recommendations[currentTrackIndex].id,
@@ -126,32 +132,44 @@ export default function Player() {
         }
     }
 
+    const handleHome = () => {
+        navigate("/");
+    }
+
     return (
-        recommendations ?
-            (currentTrackIndex < recommendations.length ?
-                <div>
-                    {firstTime ?
-                        <Modal
-                            show={openModal}
-                            onHide={() => {
-                                setOpenModal(false)
-                                updateSong(audio)
-                            }}
-                            size="md"
-                            aria-labelledby="contained-modal-title-vcenter"
-                            centered
-                        >
-                            <Modal.Header closeButton>
-                                <Modal.Title id="contained-modal-title-vcenter">
-                                    Spinder
-                                </Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <p>
-                                    Click X to skip song or + to add to your Spotify Liked Songs
-                                </p>
-                            </Modal.Body>
-                            <Modal.Footer>
+        <div>
+            <div className="d-flex">
+                <Button variant="link" className="ps-3 pt-3" onClick={handleHome}>
+                    <Image style={{ animation: `spin 8s linear infinite` }} className="custom-logo" src={logo} alt="logo" />
+                </Button>
+            </div>
+            {recommendations ?
+                (currentTrackIndex < recommendations.length ?
+                    <div>
+                        {firstTime ?
+                            <Modal
+                                show={openModal}
+                                onHide={() => {
+                                    setOpenModal(false)
+                                    updateSong(audio)
+                                    playSong()
+                                    setIsFirstTime(false)
+                                }}
+                                size="md"
+                                aria-labelledby="contained-modal-title-vcenter"
+                                centered
+                            >
+                                <Modal.Header closeButton>
+                                    <Modal.Title id="contained-modal-title-vcenter">
+                                        <h1 className="custom-logo-text">Spinder</h1>
+                                    </Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <p>
+                                        Click <span><p className="custom-dislike text d-inline">X</p></span> to skip song or <span><Image className="custom-like text" src={heart} alt="like" /></span> to add to your Spotify Liked Songs
+                                    </p>
+                                </Modal.Body>
+                                {/* <Modal.Footer>
                                 <Button
                                     className='custom-btn'
                                     onClick={() => {
@@ -159,57 +177,35 @@ export default function Player() {
                                         updateSong(audio)
                                         setIsFirstTime(false)
                                     }}>Start listening!</Button>
-                            </Modal.Footer>
-                        </Modal> :
-                        null
-                    }
+                            </Modal.Footer> */}
+                            </Modal> :
+                            null
+                        }
 
-                    <PlayerCard track={recommendations[currentTrackIndex]} audio={audio} audioRef={audioRef} trackURI={trackURI} reject={handleReject} like={handleLike}/>
-                    {/* <img
-                        src={recommendations[currentTrackIndex].album.images[0].url}
-                        alt={recommendations[currentTrackIndex].album.name + " album cover"}
-                    />
-                    <audio controls="controls" ref={audioRef}>
-                        <source src={audio} type="audio/mpeg" />
-                    </audio>
-                    <p>{recommendations[currentTrackIndex].name} by {recommendations[currentTrackIndex].artists[0].name}</p>
-
-                    <Button
-                        className='custom-btn'
-                        onClick={handleReject}>
-                        Nope, next!
-                    </Button>
-
-                    <Button
-                        className='custom-btn'
-                        onClick={handleLike}>
-                        Add to Library
-                    </Button>
-
-                    {trackURI ? <img src={trackURI} alt='track spotify code' /> : null} */}
-
-                </div>
-
-                : (
-                    <div>
-                        <p>No more tracks...</p>
-                        <Button
-                            className='custom-btn'
-                            onClick={
-                                () => {
-                                    fetchRecommendations()
-                                    setRecommendations(undefined)
-                                }
-                            }>
-                            Generate more recs
-                        </Button>
+                        <PlayerCard track={recommendations[currentTrackIndex]} audio={audio} audioRef={audioRef} trackURI={trackURI} reject={handleReject} like={handleLike} />
                     </div>
-                ))
-            :
-            (
-                <div>
-                    <p>Loading...</p>
-                </div>
-            )
+
+                    : (
+                        <div>
+                            <h1 className="mt-5 mb-3">No more tracks...</h1>
+                            <Button 
+                                variant="none"
+                                className='custom-btn mt-3 rounded-pill ps-4 pe-4'
+                                onClick={
+                                    () => {
+                                        fetchRecommendations();
+                                    }
+                                }>
+                                Generate more recs
+                            </Button>
+                        </div>
+                    ))
+                :
+                (
+                    <div>
+                        <h1 className="mt-5">Loading...</h1>
+                    </div>
+                )}
+        </div>
     )
 }

@@ -1,3 +1,15 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Zain:wght@200;300;400;700;800;900&display=swap');
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,6 +17,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #000000;
 }
 
 code {
@@ -12,12 +25,99 @@ code {
     monospace;
 }
 
-.custom-btn { 
+.custom-btn {
   background-color: #1db954;
-} 
+  font-family: "Zain", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 30px;
+  border: #000000;
+}
+
+.custom-btn:hover {
+  background-color: #1db954da;
+}
 
 .custom-card {
   width: 35rem;
-  padding: 40px;
+  padding: 50px;
+  padding-bottom: 30px;
   background-color: #1db954;
+}
+
+.custom-track-uri {
+  width: 100%;
+}
+
+.custom-audio {
+  width: 100%;
+}
+
+.custom-logo-home {
+  width: 250px;
+  height: auto;
+}
+
+.custom-logo {
+  width: 80px;
+  height: auto;
+}
+
+.custom-outer-div {
+  margin-top: 200px;
+}
+
+.custom-inner-div {
+  padding: 20px 80px;
+}
+
+h1 {
+  color: white;
+  font-family: "Zain", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 50px;
+}
+
+.custom-logo-text {
+  color: black;
+}
+
+.custom-subtitle {
+  color: white;
+}
+
+.custom-like {
+  width: 40px;
+  height: auto;
+}
+
+.custom-like-button {
+  background-color: #ffffff00;
+  border: #ffffff00;
+  border-radius: 30%;
+}
+
+.custom-like-button:hover {
+  background-color: #2bd266;
+  border-radius: 30%;
+}
+
+.custom-dislike {
+  color: #535353;
+  font-size: 35px;
+  margin: 0px;
+  padding: 0px 8px;
+  font-weight:100;
+}
+
+.custom-like.text {
+  width: 28px;
+  height: auto;
+  padding-bottom: 10px;
+}
+
+.custom-dislike.text {
+  font-size: 25px;
+  padding: 0px;
 }
