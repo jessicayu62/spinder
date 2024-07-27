@@ -28,7 +28,7 @@ export default function Player() {
     }
 
     const playSong = () => {
-        if (audio != '' && audioRef.current) {
+        if (audio !== '' && audioRef.current) {
             audioRef.current.play();
         } else {
             prepNextTrack();
@@ -45,7 +45,7 @@ export default function Player() {
         const urlParams = new URLSearchParams(window.location.search);
         let error = urlParams.get('error');
         if (error) {
-            if (error == "access_denied") {
+            if (error === "access_denied") {
                 navigate("/");
             }
             else {

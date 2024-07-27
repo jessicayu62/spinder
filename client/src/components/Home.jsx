@@ -29,6 +29,9 @@ async function generateCodeChallenge(codeVerifier) {
 }
 
 export default function Home() {
+    console.log("URI : " + config.CLIENT_ID);
+    console.log("URI : " + config.REDIRECT_URI);
+
     const handleClick = () => {
         let codeVerifier = generateRandomString(128);
 
@@ -56,10 +59,10 @@ export default function Home() {
 
     return (
         <div className='custom-outer-div'>
-            <Button variant="link">
+            <Button variant="link" onClick={handleClick}>
                 <div className='custom-inner-div'>
                     <h1 className='mb-3'>Spinder</h1>
-                    <Image style={{animation: `spin 8s linear infinite`}} className="custom-logo-home" src={logo} alt="logo" onClick={handleClick} />
+                    <Image style={{animation: `spin 8s linear infinite`}} className="custom-logo-home" src={logo} alt="logo" />
                     <i className='d-block mt-4 custom-subtitle'>Click to get started</i>
                 </div>
             </Button>

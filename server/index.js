@@ -1,11 +1,19 @@
+import "dotenv/config";
 import express from "express";
-import config from './config.js';
 import bodyParser from "body-parser";
 import fetch from 'node-fetch';
+import cors from "cors";
 
 const PORT = process.env.PORT || 3001;
 
 const app = express();
+
+app.use(
+    cors({
+      credentials: true,
+      origin: process.env.FRONTEND_URL
+    })
+  );  
 
 // create application/json parser
 const jsonParser = bodyParser.json()
@@ -16,8 +24,8 @@ app.post('/callback', jsonParser, async (req, res) => {
     const body = new URLSearchParams({
         grant_type: 'authorization_code',
         code: req.body.code,
-        redirect_uri: config.REDIRECT_URI,
-        client_id: config.CLIENT_ID,
+        redirect_uri: process.env.REDIRECT_URI,
+        client_id: process.env.CLIENT_ID,
         code_verifier: req.body.code_verifier
     });
 
