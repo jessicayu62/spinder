@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import config from '../config.js'
+import config from '../../config.js'
 import logo from './img/logo.png';
 import Image from 'react-bootstrap/Image';
 
