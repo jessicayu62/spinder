@@ -146,6 +146,20 @@ app.put('/like', jsonParser, async (req, res) => {
     res.status(res.statusCode).end();
 });
 
+app.get('/message', (req, res) => {
+    const sampleMessage = {
+        recipient: 'john.doe@example.com',
+        subject: 'Sample Message',
+        body: 'This is a sample message sent from the /message endpoint.'
+    };
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Sample message retrieved successfully.',
+        data: sampleMessage
+    });
+})
+
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
