@@ -29,14 +29,8 @@ async function generateCodeChallenge(codeVerifier) {
 }
 
 export default function Home() {
-    console.log("URI : " + config.CLIENT_ID);
-    console.log("URI : " + config.REDIRECT_URI);
-
     const handleClick = () => {
         let codeVerifier = generateRandomString(128);
-
-        console.log("URI : " + config.CLIENT_ID);
-        console.log("URI : " + config.REDIRECT_URI);
         generateCodeChallenge(codeVerifier).then(codeChallenge => {
             let state = generateRandomString(16);
             let scope = 'user-read-private user-top-read user-library-modify'; // to change

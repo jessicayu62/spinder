@@ -7,6 +7,7 @@ import logo from './img/logo.png';
 import Image from 'react-bootstrap/Image';
 import { useNavigate } from "react-router-dom";
 import heart from './img/heart-64.png';
+import config from '../config.js'
 
 const SCANNABLESURL = 'https://scannables.scdn.co/uri/plain/png/1DB954/black/640/';
 
@@ -63,12 +64,12 @@ export default function Player() {
         const codeVerifier = localStorage.getItem('code_verifier')
 
         try {
-            await axios.post('/callback', {
+            await axios.post(`${config.BASE_API_URL}/callback`, {
                 code: code,
                 code_verifier: codeVerifier,
             })
 
-            const recommendations = await axios.get('/recommendations');
+            const recommendations = await axios.get(`${config.BASE_API_URL}/recommendations`);
             setRecommendations(recommendations.data.tracks)
             // setOpenModal(true)
 
@@ -121,7 +122,7 @@ export default function Player() {
     const handleLike = async () => {
         pauseSong();
         try {
-            await axios.put('/like', {
+            await axios.put(`${config.BASE_API_URL}/like`, {
                 id: recommendations[currentTrackIndex].id,
             })
             prepNextTrack();
@@ -135,21 +136,6 @@ export default function Player() {
     const handleHome = () => {
         navigate("/");
     }
-
-    const [message, setMessage] = useState(null);
-    const [error, setError] = useState(null);
-
-    const fetchMessage = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/message');
-            setMessage(response.data);
-            setError(null);
-            console.log("RECEIVED!")
-        } catch (error) {
-            setError('Failed to fetch message.');
-            setMessage(null);
-        }
-    };
 
     return (
         <div>
