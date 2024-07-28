@@ -139,8 +139,6 @@ export default function Player() {
 
     return (
         <div>
-            <button onClick={fetchMessage}>Get Message</button>
-
             <div className="d-flex">
                 <Button variant="link" className="ps-3 pt-3" onClick={handleHome}>
                     <Image style={{ animation: `spin 8s linear infinite` }} className="custom-logo" src={logo} alt="logo" />
