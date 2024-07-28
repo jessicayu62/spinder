@@ -1,17 +1,3 @@
-// const bodyParser = require('body-parser')
-// const express = require('express');
-// const app = express();
-// app.use(express.static('client/build'));
-// const path = require('path');
-// app.get('*', (req, res) => {
-// res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-// });
-// import "dotenv/config";
-// import express from "express";
-// import bodyParser from "body-parser";
-// import fetch from 'node-fetch';
-// import cors from "cors";
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -145,20 +131,6 @@ app.put('/like', jsonParser, async (req, res) => {
         });
     res.status(res.statusCode).end();
 });
-
-app.get('/message', (req, res) => {
-    const sampleMessage = {
-        recipient: 'john.doe@example.com',
-        subject: 'Sample Message',
-        body: 'This is a sample message sent from the /message endpoint.'
-    };
-
-    res.status(200).json({
-        status: 'success',
-        message: 'Sample message retrieved successfully.',
-        data: sampleMessage
-    });
-})
 
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
