@@ -1,19 +1,38 @@
-import "dotenv/config";
-import express from "express";
-import bodyParser from "body-parser";
-import fetch from 'node-fetch';
-import cors from "cors";
+// const bodyParser = require('body-parser')
+// const express = require('express');
+// const app = express();
+// app.use(express.static('client/build'));
+// const path = require('path');
+// app.get('*', (req, res) => {
+// res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+// });
+// import "dotenv/config";
+// import express from "express";
+// import bodyParser from "body-parser";
+// import fetch from 'node-fetch';
+// import cors from "cors";
 
-const PORT = process.env.PORT || 3001;
-
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const bodyParser = require('body-parser')
+const dotenv = require('dotenv')
+dotenv.config()
 const app = express();
+const PORT = process.env.PORT || 3001;
 
 app.use(
     cors({
-      credentials: true,
-      origin: process.env.FRONTEND_URL
+        credentials: true,
+        origin: process.env.FRONTEND_URL
     })
-  );  
+);
+
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('/*', function (req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // create application/json parser
 const jsonParser = bodyParser.json()
