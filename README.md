@@ -7,5 +7,5 @@ In need of music recs based on your favorite artists and tracks? Listen to 30-se
 
 Notes:
 - _Inspired by Tinder's swipe left and right actions_
-- _Server is deployed on Render, which spins down with inactivity, so will likely need to reload for first use_
+- _Server is deployed on Render, which spins down with inactivity, so will likely need to reload for first use (after ~50 secs)_
 - _Uses Spotify's Web API_
