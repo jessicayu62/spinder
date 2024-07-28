@@ -136,8 +136,25 @@ export default function Player() {
         navigate("/");
     }
 
+    const [message, setMessage] = useState(null);
+    const [error, setError] = useState(null);
+
+    const fetchMessage = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/message');
+            setMessage(response.data);
+            setError(null);
+            console.log("RECEIVED!")
+        } catch (error) {
+            setError('Failed to fetch message.');
+            setMessage(null);
+        }
+    };
+
     return (
         <div>
+            <button onClick={fetchMessage}>Get Message</button>
+
             <div className="d-flex">
                 <Button variant="link" className="ps-3 pt-3" onClick={handleHome}>
                     <Image style={{ animation: `spin 8s linear infinite` }} className="custom-logo" src={logo} alt="logo" />
